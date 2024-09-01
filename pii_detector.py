@@ -14,12 +14,12 @@ import cv2
 
 # Put the trained models for each document type
 models = {
-    'Aadhar Card': keras.models.load_model('aadhar_card_model.h5'),
-    'Pan Card': keras.models.load_model('pan_card_model.h5'),
-    'Voter Id': keras.models.load_model('voter_id_model.h5'),
-    'Passport': keras.models.load_model('passport_model.h5'),
-    'Driver License': keras.models.load_model('driver_license_model.h5'),
-    'NREGA Job Card': keras.models.load_model('nrega_job_card_model.h5')
+    'Aadhar Card': keras.models.load_model('aadhar_card_model.py'),
+    #'Pan Card': keras.models.load_model('pan_card_model.h5'),
+    #'Voter Id': keras.models.load_model('voter_id_model.h5'),
+    #'Passport': keras.models.load_model('passport_model.h5'),
+    #'Driver License': keras.models.load_model('driver_license_model.h5'),
+    #'NREGA Job Card': keras.models.load_model('nrega_job_card_model.h5')
 }
 
 pii_regex = {
