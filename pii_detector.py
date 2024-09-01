@@ -14,7 +14,7 @@ import cv2
 
 # Put the trained models for each document type
 models = {
-    'Aadhar Card': keras.models.load_model('aadhar_card_model.py'),
+    'Aadhar Card': keras.models.load_model('aadhar_card_model.h5'),
     #'Pan Card': keras.models.load_model('pan_card_model.h5'),
     #'Voter Id': keras.models.load_model('voter_id_model.h5'),
     #'Passport': keras.models.load_model('passport_model.h5'),
