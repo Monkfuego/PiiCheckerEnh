@@ -117,5 +117,4 @@ def main():
     else:
         print("No document detected")
 
-if __name__ == "__main__":
-    main()
+
