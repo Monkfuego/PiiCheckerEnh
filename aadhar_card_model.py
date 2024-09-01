@@ -87,3 +87,8 @@ if predicted_class == 1:
     print("The input image is predicted to be a positive sample.")
 else:
     print("The input image is predicted to be a negative sample.")
+
+# Save the model to an HDF5 file
+model.save('document_detection_model.h5')
+
+print("Model saved to document_detection_model.h5")
