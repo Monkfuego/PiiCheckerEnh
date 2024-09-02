@@ -7,26 +7,11 @@ import pandas as pd
 
 # Create a sample dataset
 positive_samples = [
-    "C:/object_detection/imgs/img1.png",
-    "C:/object_detection/imgs/img2.png",
-    "C:/object_detection/imgs/img3.png",
-    "C:/object_detection/imgs/img4.png",
-    "C:/object_detection/imgs/img5.png",
-    "C:/object_detection/imgs/img6.jpg",
-    "C:/object_detection/imgs/img7.jpg",
-    "C:/object_detection/imgs/img8.jpg",
-    "C:/object_detection/imgs/img9.jpg",
+    
 ]
 negative_samples = [
-    'C:/object_detection/negative_imgs/img1.jpg',
-    "C:/object_detection/negative_imgs/img2.jpg",
-    "C:/object_detection/negative_imgs/img3.jpg",
-    "C:/object_detection/negative_imgs/img4.jpg",
-    "C:/object_detection/negative_imgs/img5.jpg",
-    "C:/object_detection/negative_imgs/img6.jpg",
-    "C:/object_detection/negative_imgs/img7.jpg",
-    "C:/object_detection/negative_imgs/img8.jpg",
-    "C:/object_detection/negative_imgs/img9.jpg"
+    
+
 ]
 
 # Function to load images
@@ -62,6 +47,10 @@ dataset = dataset.shuffle(buffer_size=len(images)).batch(32)
 model = keras.Sequential([
     layers.Conv2D(32, 3, activation='relu', input_shape=(224, 224, 3)),
     layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(64, 3, activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(128, 3, activation='relu'),
+    layers.MaxPooling2D((2, 2)),
     layers.Flatten(),
     layers.Dense(128, activation='relu'),
     layers.Dense(2, activation='softmax')
@@ -75,7 +64,7 @@ model.compile(optimizer='adam',
 # Train the model
 model.fit(dataset, epochs=10)
 
-input_image_path = "C:/object_detection/negative_imgs/img1.jpg"  # Replace with your input image path
+input_image_path = ""  # Replace with your input image path
 input_image = preprocess_image(input_image_path)
 
 # Make a prediction
@@ -89,6 +78,6 @@ else:
     print("The input image is predicted to be a negative sample.")
 
 # Save the model to an HDF5 file
-model.save('document_detection_model.h5')
+model.save('aadhar_card_model.h5')
 
-print("Model saved to document_detection_model.h5")
+print("Model saved to aadhar_card_model.h5")
