@@ -3,15 +3,16 @@ from docx import Document
 import PyPDF2
 from pdfminer.high_level import extract_text as pdfminer_extract_text
 from bs4 import BeautifulSoup
-from azure.cognitiveservices.vision.computervision import ComputerVisionClient
-from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
-from PIL import Image, ImageDraw
-from msrest.authentication import CognitiveServicesCredentials
-from azure.cognitiveservices.vision.computervision import ComputerVisionClient
+import os
+import requests
+from bs4 import BeautifulSoup
+import fitz  # PyMuPDF
+from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
+import numpy as np
+from PIL import Image as PILImage
 
-subscription_key = "da743008b85d4f16bdb6035f8ed89123"
-endpoint = "https://piidetectivecv.cognitiveservices.azure.com/"
-computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
+output_folder = "Imagefolder"
 
 def read_text_from_file(file_path):
     ext = os.path.splitext(file_path)[1].lower()
@@ -23,9 +24,7 @@ def read_text_from_file(file_path):
     elif ext == '.pdf':
         return read_text_from_pdf(file_path)
     elif ext == '.html' or ext == '.htm':
-        return read_text_from_html(file_path)
-    elif ext in ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.gif']:
-        return read_text_from_image(file_path)
+        return read_text_from_html(file_path)   
     else:
         raise ValueError(f"Unsupported file extension: {ext}")
 
@@ -45,7 +44,7 @@ def read_text_from_pdf(file_path):
             reader = PyPDF2.PdfFileReader(file)
             for page_num in range(reader.getNumPages()):
                 text += reader.getPage(page_num).extractText()
-        if not text.strip():  # If PyPDF2 fails, use pdfminer
+        if not text.strip():  
             text = pdfminer_extract_text(file_path)
     except Exception as e:
         text = pdfminer_extract_text(file_path)
@@ -55,23 +54,79 @@ def read_text_from_html(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         soup = BeautifulSoup(file, 'html.parser')
         return soup.get_text()
-
-def read_text_from_image(image_path):
-    with open(image_path, "rb") as image_stream:
-        ocr_result = computervision_client.read_in_stream(image_stream, raw=True)
     
-    operation_location_remote = ocr_result.headers["Operation-Location"]
-    operation_id = operation_location_remote.split("/")[-1]
+######################### Images ########
 
-    while True:
-        get_text_results = computervision_client.get_read_result(operation_id)
-        if get_text_results.status not in ['notStarted', 'running']:
-            break
-    if get_text_results.status == OperationStatusCodes.succeeded:
-        extracted_text = []
-        for text_result in get_text_results.analyze_result.read_results:
-            for line in text_result.lines:
-                extracted_text.append(line.text)
-        return "\n".join(extracted_text)
+def extract_images_from_pdf(pdf_path, output_folder):
+    """Extract images from a PDF file."""
+    doc = fitz.open(pdf_path)
+    for i in range(len(doc)):
+        page = doc.load_page(i)
+        image_list = page.get_images(full=True)
+        for img_index, img in enumerate(image_list):
+            xref = img[0]
+            base_image = doc.extract_image(xref)
+            image_bytes = base_image["image"]
+            image_filename = f"{output_folder}/pdf_page_{i+1}_img_{img_index+1}.png"
+            with open(image_filename, "wb") as img_file:
+                img_file.write(image_bytes)
+    print("PDF images extracted.")
+
+def extract_images_from_excel(excel_path, output_folder):
+    """Extract images from an Excel file."""
+    wb = load_workbook(excel_path)
+    for sheet in wb.sheetnames:
+        ws = wb[sheet]
+        for image in ws._images:
+            img = image.image
+            image_filename = f"{output_folder}/excel_{sheet}_image.png"
+            img.save(image_filename)
+    print("Excel images extracted.")
+
+def extract_images_from_html(html_path, output_folder):
+    """Extract images from an HTML file."""
+    with open(html_path, "r", encoding="utf-8") as file:
+        soup = BeautifulSoup(file, "html.parser")
+    
+    images = soup.find_all("img")
+    for img in images:
+        img_url = img.get("src")
+        if img_url:
+            img_name = os.path.basename(img_url)
+            img_path = os.path.join(output_folder, img_name)
+            img_data = requests.get(img_url).content
+            with open(img_path, "wb") as handler:
+                handler.write(img_data)
+    print("HTML images extracted.")
+
+def extract_images_from_txt(txt_path, output_folder):
+    """TXT files usually don't contain images, this is a placeholder."""
+    print("TXT files usually don't contain images.")
+
+def preprocess_image(image_path):
+    """Preprocess image for model prediction."""
+    img = PILImage.open(image_path).convert('RGB')
+    img = img.resize((224, 224))  # Resize to model's input size
+    img_array = np.array(img) / 255.0  # Normalize image
+    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+    return img_array
+
+def image_extraction(file_path):
+    # img
+    
+    # Ensure output directory exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
+    # Extract images based on file extension
+    file_extension = os.path.splitext(file_path)[1].lower()
+    if file_extension == '.pdf':
+        extract_images_from_pdf(file_path, output_folder)
+    elif file_extension == '.xlsx':
+        extract_images_from_excel(file_path, output_folder)
+    elif file_extension == '.html':
+        extract_images_from_html(file_path, output_folder)
+    elif file_extension == '.txt':
+        extract_images_from_txt(file_path, output_folder)
     else:
-        return "Text extraction failed."
+        print(f"Unsupported file type: {file_extension}")
