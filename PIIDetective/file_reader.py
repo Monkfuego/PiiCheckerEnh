@@ -110,13 +110,8 @@ def preprocess_image(image_path):
     return img_array
 
 def image_extraction(file_path):
-    # img
-    
-    # Ensure output directory exists
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-    
-    # Extract images based on file extension
     file_extension = os.path.splitext(file_path)[1].lower()
     if file_extension == '.pdf':
         extract_images_from_pdf(file_path, output_folder)
@@ -124,7 +119,5 @@ def image_extraction(file_path):
         extract_images_from_excel(file_path, output_folder)
     elif file_extension == '.html':
         extract_images_from_html(file_path, output_folder)
-    elif file_extension == '.txt':
-        extract_images_from_txt(file_path, output_folder)
     else:
         print(f"Unsupported file type: {file_extension}")
