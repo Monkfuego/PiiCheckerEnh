@@ -1,35 +1,22 @@
 from keras import models
 from processing import preprocess_image
-from file_reader import output_folder, read_text_from_file, image_extraction
-import os
-import numpy as np
-from pii_regex import pii_regex, doc_pii_regex 
-
-def pii_detect_layer1(file):
-    results = []
-    
-    for label, pattern in {**pii_regex, **doc_pii_regex}.items():
-        matches = pattern.findall(read_text_from_file(file))
-        if matches:
-            for match in matches:
-                results.append((label, match))
-    return results
-
-from keras import models
-from processing import preprocess_image
 from file_reader import read_text_from_file, image_extraction,output_folder
 import os
 import numpy as np
 from pii_regex import pii_regex, doc_pii_regex 
-print(str(output_folder))
+
 def pii_detect_layer1(file):
     results = []
+    file_content = read_text_from_file(file)
+
+    lines = file_content.split('\n')
+    for line_number, line in enumerate(lines, start=1):
+        for label, pattern in {**pii_regex, **doc_pii_regex}.items():
+            matches = pattern.findall(line)
+            if matches:
+                for match in matches:
+                    results.append((label, match, line_number, line.strip()))
     
-    for label, pattern in {**pii_regex, **doc_pii_regex}.items():
-        matches = pattern.findall(read_text_from_file(file))
-        if matches:
-            for match in matches:
-                results.append((label, match))
     return results
 
 def pii_detect_layer2(file):
@@ -53,3 +40,12 @@ def pii_detect_layer2(file):
             else:
                 return None
 
+def detector_main(file):
+    ext = os.path.splitext(file)[1].lower()
+    if ext == '.jpg' or ext == '.jpeg' or ext == '.png':
+        pii_detect_layer2(file)
+    elif ext == '.txt' or '.docx' or '.pdf' or '.html' or '.htm' or '.csv' or '.xml' or '.json' or '.xlsx':
+        pii_detect_layer1(file)
+        pii_detect_layer2(file)  
+    else:
+        return (f"Unsupported file extension: {ext}")
