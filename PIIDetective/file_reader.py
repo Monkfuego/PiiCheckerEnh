@@ -99,9 +99,7 @@ def extract_images_from_html(html_path, output_folder):
                 handler.write(img_data)
     print("HTML images extracted.")
 
-def extract_images_from_txt(txt_path, output_folder):
-    """TXT files usually don't contain images, this is a placeholder."""
-    print("TXT files usually don't contain images.")
+
 
 def preprocess_image(image_path):
     """Preprocess image for model prediction."""
