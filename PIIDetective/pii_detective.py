@@ -27,7 +27,8 @@ def pii_detect_layer2(file):
            extracted_images.append(filename)
        if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
            img_array = preprocess_image(extracted_images)
-           prediction = model.predict(img_array)
-           predicted_class = np.argmax(prediction)
-           print(f"Predicted class for {filename}: {predicted_class}")
+           for images in img_array:
+               prediction = model.predict(images)
+               predicted_class = np.argmax(prediction)
+               print(f"Predicted class for {filename}: {predicted_class}")
 
