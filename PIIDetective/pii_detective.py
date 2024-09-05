@@ -19,7 +19,7 @@ def pii_detect_layer1(file):
 
 def pii_detect_layer2(file):
     
-    
+    extracted_images = []
     model = models.load_model('aadhar_card_model.keras')
     
     # Iterate over extracted images and make predictions
