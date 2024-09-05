@@ -18,14 +18,15 @@ def pii_detect_layer1(file):
 
 
 def pii_detect_layer2(file):
-    preprocess_image(image_extraction(file))
+    
+    
     model = models.load_model('aadhar_card_model.keras')
     
     # Iterate over extracted images and make predictions
     for filename in os.listdir(output_folder):
+           extracted_images.append(filename)
        if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-           img_path = os.path.join(output_folder, filename)
-           img_array = preprocess_image(img_path)
+           img_array = preprocess_image(extracted_images)
            prediction = model.predict(img_array)
            predicted_class = np.argmax(prediction)
            print(f"Predicted class for {filename}: {predicted_class}")
