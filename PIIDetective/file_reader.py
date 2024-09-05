@@ -101,13 +101,7 @@ def extract_images_from_html(html_path, output_folder):
 
 
 
-def preprocess_image(image_path):
-    """Preprocess image for model prediction."""
-    img = PILImage.open(image_path).convert('RGB')
-    img = img.resize((224, 224))  # Resize to model's input size
-    img_array = np.array(img) / 255.0  # Normalize image
-    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
-    return img_array
+
 
 def image_extraction(file_path):
     if not os.path.exists(output_folder):
