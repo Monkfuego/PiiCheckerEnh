@@ -36,9 +36,9 @@ def pii_detect_layer2(file):
                 predicted_class = np.argmax(prediction)
                 
             if predicted_class==1:
-                return filename
+                return "Personal Identity Information Found"
             else:
-                return None
+                return "No Personal Identity Information Found"
 
 def detector_main(file):
     ext = os.path.splitext(file)[1].lower()
@@ -49,3 +49,6 @@ def detector_main(file):
         pii_detect_layer2(file)  
     else:
         return (f"Unsupported file extension: {ext}")
+def remove_first_slash(s):
+    # Replace the first occurrence of '/' with an empty string
+    return s.replace('/', '', 1)
